@@ -1,0 +1,157 @@
+https://medium.com/@gio.amorim/data-exploration-for-regression-analysis-821ee0bfc724
+
+Data Exploration for Regression Analysis — A Beginner’s Roadmap
+Giovanna Fernandes
+
+Giovanna Fernandes
+·
+
+8 min read
+·
+Jun 17, 2019
+
+A simple, step-by-step guide for data exploration on Python
+Photo by Jamie Templeton on Unsplash
+
+*** Interested in a bootcamp to learn the fundamentals of ML? Look into The Machine Learning Fundamentals Bootcamp ***
+
+As much as StackOverflow is greatly appreciated and a huge help for beginners and seasoned professionals alike, sometimes when you venture there looking for answers you can leave more confused than before. For someone who is new to data science and Python, learning several different ways to accomplish something all at the same time, or looking through very high-level, technical explanations can feel puzzling or lead into a rabbit hole.
+
+Thinking of this, I realized that putting out in the wild a simple roadmap for the data exploration could be very useful to learners out there.
+
+When approaching a data science project professionals can use several different methods or processes — CRISP-DM, Knowledge Discovery in Databases (or KDD), and OSEMN, are only some of them. In any case, regardless of the method you pick you’ll have to spend a good percentage of your time on the project just exploring your data. Before you can do anything with your data, it is paramount to learn all you can about it. What type of variables are these? What do they mean? What are their range, distribution, trends, etc. What is it telling me, and how would they be best used to solve my problem?
+
+It can sound daunting at first but fear not: I present you with a simple, step-by-step roadmap to help guide you through this stage of the process, all using Python and some of its most common libraries like Pandas, Matplotlib and Seaborn. Let’s get to it!
+Photo by Bruno Nascimento on Unsplash
+
+Hello, DataFrame!
+
+Here we are going to focus on data exploration (EDA) only so we are assuming you know how and have already successfully loaded your dataset and cleaned it from NaNs and placeholders. For our example we will work with the King County Housing dataset, which you can find on Kaggle using this link.
+
+Before we do anything, it is useful to look at the description for your columns. This information is usually provided along with a dataset. Note, though, that they might not always be accurate and that your analysis of the data might bring you to conclude that values mean something other than what the description states. It is all about getting to know and understanding your data, after all. Let’s have a quick look at ours.
+First Step — The Getting-To-Know-You Triad
+
+A first step on data exploration is to look at what I call the basic triad of learning about your data: .head(), .info(), and .describe() all can help you quickly become more familiar with your dataset. What are the maximum and minimum values? What are my columns data types? How many entries do I have to work with? These and many other information can be extracted just by applying these three simple methods.
+
+    .info() shows us some important facts about our data: it confirms we have a pandas DataFrame class, shows the number of entries and columns, lists each column datatype, as well as the memory usage, which can be helpful to know when it comes to large datasets.
+
+df.info()<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 21597 entries, 0 to 21596
+Data columns (total 21 columns):
+id               21597 non-null int64
+date             21597 non-null object
+price            21597 non-null float64
+bedrooms         21597 non-null int64
+bathrooms        21597 non-null float64
+sqft_living      21597 non-null int64
+sqft_lot         21597 non-null int64
+floors           21597 non-null float64
+waterfront       19221 non-null float64
+view             21534 non-null float64
+condition        21597 non-null int64
+grade            21597 non-null int64
+sqft_above       21597 non-null int64
+sqft_basement    21597 non-null object
+yr_built         21597 non-null int64
+yr_renovated     17755 non-null float64
+zipcode          21597 non-null int64
+lat              21597 non-null float64
+long             21597 non-null float64
+sqft_living15    21597 non-null int64
+sqft_lot15       21597 non-null int64
+dtypes: float64(8), int64(11), object(2)
+memory usage: 3.5+ MB
+
+Looking at this information we can easily spot which columns will have NaNs, and also what data types are not consistent with the values you have. For example, we would look into why sqft_basement is object type since square footage is numerical data. You can adjust datatypes at this point.
+
+2. .head() helps you get an initial glimpse on your data that can be very helpful. This method, along with .tail() will output the first (or last in case of .tail()) rows of your dataframe. I like to pass 10 or 20 so I can see a little bit more of data.
+partial output from df.head(10)
+
+Aha! We can spot a ? value over on sqft_basement and that can explain the object datatype. We can get a little sense of the numbers we have for each column, and the next method gives us more information on their totality.
+
+3. .describe() This method is very useful for our numerical columns, as it outputs the main statistical values from our dataset: count, min and max values, quartiles, mean and standard deviation. From looking at it you can see within what values most data points fall, how large is each data range and more. We can see, for example, that view has a maximum value of 4, so this means this column might not have boolean values as we had suspected before.
+partial output from df. describe()
+Second Step — Let Me See This!
+
+As much as all these numbers are helpful, some other things are much more easily seen with some visual aid. The second step on our exploration process is to have a have a look at our data through some useful plot types. Remember that we are looking at data in order to use it for a regression analysis model, so we have some specific goals as we explore our data.
+
+    Look at data distributions with histograms
+
+A histogram can give us a quick idea of our data distributions shape, skewness, and scale. It is also useful for starting to have an idea of which are our categorical features. I particularly like to use Seaborn distplot, which adds a kernel density estimate line on top of our histograms. Look at the code and a couple example plots below.
+
+# make sure to import all libraries you'll use for visualizations
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+%matplotlib inline# use a for loop to plot each column from your dataframe
+for column in df:
+    sns.distplot(df[column], hist_kws=dict(color='plum',    edgecolor="k", linewidth=1))
+    plt.show()
+
+We can note long tail and skewness for sqft_living
+This distribution suggests us that grade is categorical
+
+2. Look at linearity and variance with scatterplots
+
+Scatterplots are an absolutely great tool when it comes to data exploration for regression analysis. Plotting our independent variables against our dependent one on a scatterplot allows us to check for linearity — which is one of the mandatory regression analysis assumptions — , observe the variance on our data — that can cause our model to not hold the homoscedasticity regression assumption, as well as spot outliers. We can also confirm categorical variables by the way they look on a scatterplot as well.
+
+There are several different ways you can plot a scatterplot, but my favorite is the Seaborn regplot because it plots a linear regression model line on top of our data, making it one step easier to visualize linearity and how outliers might impact our model.
+
+# to make plotting easier we will remove our target variable price from the main dataframe and save it on a separate one:
+target = df.price
+df = df.drop(columns=['price'])# we use a for loop to plot our independent variables against our dependent one:
+for col in df:
+    sns.regplot(x=df[col], y=target, data=df, label=col)
+    plt.ylabel('Price')
+    plt.xlabel('')
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+Look at that outlier (over 30 bedrooms!) and at how it lowers the confidence of our regression line
+We can see a linear relation to price, as well as note our data presents high variance
+I spot a category!
+
+3. If outliers are an issue, it can also be useful to use a boxplot or a Seaborn violinplot to look at outliers more closely.
+
+# boxplot
+plt.figure(figsize=(12,4))
+sns.boxplot(df['price'])
+plt.show()
+
+A lot of outliers at above 1M
+
+# violin plot
+for column in df:
+    sns.violinplot(x=column, data=df, color='salmon', whis=3)
+    plt.tight_layout()
+    plt.show()
+
+Just look at that long tail screaming “outliers!”
+
+4. Finally, one very useful tool for our data exploration before regression analysis is looking at Seaborn heatmap of correlations. This plot makes it very easy to spot where there are problems on multicollinearity. For our regression models to be accurate we must always remove one of features that show high collinearity between them. It is also very useful to have a good sense of which features show more correlation to our dependent variable (but don’t forget that such correlation must be of a linear order as well).
+
+# save correlations to variable
+corr = df.corr()# we can create a mask to not show duplicate values
+mask = np.zeros_like(corr, dtype=np.bool)
+mask[np.triu_indices_from(mask)] = True# generate heatmap
+plt.figure(figsize= (12,12))
+sns.heatmap(corr, annot=True, center=0, mask=mask, cmap='gnuplot')
+plt.show()
+
+Isn’t it beautiful? Our eyes go straight to that light colored square, which shows us a correlation between sqft_above and sqft_living of .88!
+Last Step — Deal with it!
+
+After these visualizations, we now have a good idea of all the issues we must address, and in this last stage we deal with each of them. For example, we might have to:
+
+• remove the variables that show multicollinearity issues
+
+• select the categorical variables and prepare them with binning (if that’s the case) or one-hot encoding
+
+• apply log transformations where necessary to continuous variables
+
+    normalize or standardize the continuous variables
+
+After this is all said and done, you should have a nice, prepared dataset in order to start to work on your models!
+
+Hope this was helpful, and please be free to ask questions or point any areas for improvement on this article.

@@ -1,0 +1,86 @@
+https://medium.com/analytics-vidhya/predicting-a-pga-tour-winner-part-2-k-means-clustering-decision-trees-prediction-72b42c788c55
+
+Predicting a PGA Tour Winner (Part 2 — K-Means Clustering, Decision Trees & Prediction)
+Rosie Kipling
+Analytics Vidhya
+
+Rosie Kipling
+·
+
+Published in
+
+Analytics Vidhya
+·
+6 min read
+·
+Apr 22, 2020
+
+As promised, this is Part 2 —the exciting DataMagic™ bit.
+
+If you’ve not read Part 1 — Exploration and Regression Models yet, I’d recommend that you go and give it a read before diving into this one. It should take less than 5 minutes and gives a gentle introduction to the dataset, along with my motivation for the project.
+Jon Rahm, Open de España 2019
+
+If however, you’re looking for a one-line reminder of where we got to previously, here’s some context:
+
+It’s late September 2019, I’ve got a clean dataset with PGA player stats by season from 2010–2018, and 2019 data up to the end of August. I want to use previous years’ data to predict who will win the next tournament…
+
+…more importantly from my perspective, the stakes had been raised at this point as I had committed to place a bet on the player that my model favoured most highly.
+K-Means Clustering
+
+K-Means Clustering is a method of classification, whereby you can split a number of data points into K categories, based on best-fit. Different algorithms use different methods of deciding what the best-fit should be, but K-Means Clustering is one of the most widely-used methods.
+
+The algorithm starts with some K centroids (3, in the diagram below), corresponding to each category, and then allocates each data point a category based on whichever centroid it is closest to (in Euclidean Distance). It then recalculates the centroid position to place it right in the middle of all the points in that category.
+
+The algorithm continues in this way, to iterate through several possible centroids, each time reducing the total distance of each of the data-points from it’s nearest centroid, until the clusters have settled in their optimal position.
+K-Means Clustering Convergence (Wikipedia)
+
+The diagram above shows the K-Means Clustering algorithm working across 2 dimensions, x and y, however the data I’m working with (after a lot of narrowing down) has 21 variables, from Tour Earnings to Average Driving Distance, to % Greens Hit in Regulation. So try to imagine the same process, over 21 dimensions — it’s impressive if you can, most people tend to get stuck visualising more than 3!
+
+One promising piece of insight from this process, was that Money Earned is a great indicator for several other variables, so almost every variable plotted against Money has very clear categories.
+
+Note: It might be interesting to do this process without Money as a variable, to see if there are groups of players that have similar games, however for the purposes of predicting a winner this works well. I want to find someone in category 2 (light purple, below).
+K-Means Clusters (K=4) Plotted by Money vs. Avg. Putts per Round
+Decision Tree Classifier
+
+Using the K-Means Clusters above, I then ran a decision tree model on the 2010–2018 data (this time excluding Money as a variable), in order to identify a limited set of rules that defined each category. Using only 4 rules, I could identify if a player fell into each category with 60% accuracy. Then applying these rules to the 2019 data, I could find the player ‘most likely to succeed’.
+
+This is where I have a confession to make, and where I implore you to learn from my mistakes and double check your work!
+Brief Interlude (The Bet)
+
+Initially, I ran the decision tree with 4 layers (as above), which successfully categorised players across 3 categories, (orange, green, purple) and of these, the purple group were the highest performing. Therefore, I took the rules that led to the farthest right purple box, and applied these filters to the 2019 data to give me a group of 4 high performing players this season to-date.
+
+One of these players was Jon Rahm. Having had some exposure to the golfing world, this was a name that I recognised and could get behind. So I immediately placed a £20 bet (each way, because I’m a scaredy-cat) on him to place in the top 5 for his next competition, the Open de España in Madrid the following weekend.
+
+Immediately following the placement of this bet, I then realised that I was only seeing 3 colours on my decision tree, and that I should have been looking for the 4th colour, blue. So at this point, still kicking myself for placing that bet, I added a fifth layer to my decision tree and re-ran my calculations.
+…Back to the Final Decision Tree
+
+As I was saying earlier, using only 5 ‘rules’ I could identify if a player fell into each category (this time, including the best performing one), with 60% accuracy.
+
+The 5 ‘rules’ leading to the blue box (above) and therefore the best identifiers of successful players between 2010–2018 were as follows:
+
+    Birdie Conversion > 28.5%
+    Good Drive % > 79.9% (hit fairway or placed well for next shot)
+    Max Consecutive Greens in Regulation > 14.5
+    Average Distance to Hole from Drive < 156 yds
+    and finally… Birdie Conversion > 32.15%
+
+Birdie Conversion was such an important feature that it featured twice, so within my 2019 calculations I could just take the greater value.
+Conclusion
+
+Applying these parameters to the 2019 data, left me with only one player: Cameron Champ.
+
+A quick google told me everything I needed to know — he had won the last Tournament he had played in… yesterday. My 2019 data didn’t include this competition, which meant that if I had ran my calculations a week earlier (and had the guts to place my £20 bet on someone that I hadn’t heard of), I would have predicted a player with odds of 90–1 to win $6.6million in the Safeway Open, and made £1,800.
+
+The good news, is that finding this out stung a little less the following weekend when my bet on Jon Rahm came through (he actually won the Open de España) and left me £40 up. The alternative would have been nice though.
+Jon Rahm — being a legend
+Final Remarks
+
+I’m not a gambler. I rarely place bets and I won’t be quitting my job to take up a career in sports betting any time soon. However, the one thing that this has proven for me is that Data Science is magic.
+
+One caveat to this is that to use Machine Learning techniques to your advantage, as with most things, it’s important to know why it works. Machine Learning can be the cockpit, but (at least until the robots take over) there will always need to be a pilot.
+
+    “It is a mistake to use statistics without logic, but it is not a mistake to use logic without statistics.”
+
+    — Nassim Taleb, Fooled by Randomness
+
+Finally, I’d like to give a mention to how my experiences and prior knowledge influenced my decision of when to bet, and when not to. It’s a much larger topic than can be covered here, but in every decision we make intuition plays a strong part, perhaps stronger than we’d like to believe. So when it comes to looking at the data, I believe that it’s also important to listen to our instincts, accept them, challenge them and find out where exactly that “gut feeling” is coming from. Being conscious of our biases combined with the ability to take on new information and to change our minds, is the first step towards making consistently good decisions.
